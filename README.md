@@ -1,8 +1,8 @@
 # Rehnumai — Adaptive Curriculum Engine
 
-**Team:** Arsam,Shaheer,Shanza
-**Theme & Challenge:** Theme 2 — Education & Skill Development | Hard Tier
-**Hackathon:** AI Mustaqbil 2.0 — Multi-Agentic Systems Hackathon
+**Team:** Arsam,Shaheer,Shanza  
+**Theme & Challenge:** Theme 2 — Education & Skill Development | Hard Tier  
+**Hackathon:** AI Mustaqbil 2.0 — Multi-Agentic Systems Hackathon  
 **Date:** March 27–28, 2026 | NASTP Karachi
 
 ---
