@@ -118,7 +118,7 @@ Every learner answer is scanned before processing. Regex catches distress patter
 ## Project Structure
 
 ```
-rehnumai/
+code/
 ├── index.html           ← Frontend — open this in browser
 ├── server.py            ← Flask server with all guardrails — run this first
 ├── main.py              ← CLI entry point (backup)
