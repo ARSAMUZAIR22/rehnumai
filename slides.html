@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Rehnumai — Slide Deck</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:100%;background:#000;font-family:'Inter',sans-serif;overflow:hidden;}
+
+.deck{width:100vw;height:100vh;display:flex;flex-direction:column;}
+
+.controls{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#040f08;border-bottom:1px solid #0d2e18;
+  padding:10px 20px;flex-shrink:0;
+}
+.ctrl-left{display:flex;align-items:center;gap:12px;}
+.ctrl-title{font-family:'Pixelify Sans',monospace;font-size:15px;color:#00ff41;letter-spacing:3px;}
+.dots{display:flex;gap:6px;}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(0,255,65,0.2);cursor:pointer;transition:background 0.2s;border:none;}
+.dot.active{background:#00ff41;}
+.ctrl-right{display:flex;align-items:center;gap:12px;}
+.counter{font-size:12px;color:#1e5c2e;letter-spacing:3px;}
+.btn{background:transparent;border:1px solid rgba(0,255,65,0.35);color:#00ff41;font-family:'Inter',sans-serif;font-size:11px;letter-spacing:2px;padding:6px 16px;cursor:pointer;text-transform:uppercase;transition:all 0.1s;}
+.btn:hover{background:rgba(0,255,65,0.08);}
+
+.stage{flex:1;position:relative;overflow:hidden;}
+
+.slide{
+  position:absolute;inset:0;
+  background:#071a0e;
+  display:none;flex-direction:column;
+  padding:0;
+  opacity:0;transition:opacity 0.25s;
+}
+.slide.active{display:flex;opacity:1;}
+
+.slide-inner{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:clamp(24px,4vh,56px) clamp(32px,5vw,96px);
+  position:relative;
+}
+
+.s-tag{
+  position:absolute;top:clamp(10px,2vh,20px);left:clamp(12px,2vw,28px);
+  font-size:clamp(8px,0.8vw,10px);color:#1e5c2e;letter-spacing:3px;
+  border:1px solid #0d2e18;padding:3px 10px;text-transform:uppercase;
+}
+.s-num{
+  position:absolute;top:clamp(10px,2vh,20px);right:clamp(12px,2vw,28px);
+  font-size:clamp(9px,0.8vw,11px);color:#0d2e18;letter-spacing:3px;
+}
+
+.s-title{
+  font-family:'Pixelify Sans',monospace;
+  font-size:clamp(32px,6vw,72px);
+  font-weight:700;color:#00ff41;
+  letter-spacing:4px;text-align:center;line-height:1.1;margin-bottom:12px;
+}
+.s-h2{
+  font-size:clamp(18px,2.8vw,34px);font-weight:700;
+  color:#00ff41;letter-spacing:2px;text-align:center;
+  margin-bottom:clamp(12px,2vh,24px);line-height:1.2;
+}
+.s-sub{font-size:clamp(11px,1.2vw,16px);color:#1e5c2e;letter-spacing:3px;text-align:center;}
+.s-body{font-size:clamp(11px,1.1vw,15px);color:#3a8a4a;letter-spacing:0.3px;line-height:1.8;text-align:center;max-width:700px;}
+.divider{width:80px;height:1px;background:#0d2e18;margin:20px auto;}
+
+.card-row{display:flex;gap:clamp(10px,1.5vw,20px);width:100%;margin-top:clamp(8px,1.5vh,16px);}
+.card{
+  flex:1;border:1px solid #1e5c2e;border-radius:6px;
+  padding:clamp(14px,2vh,22px) clamp(16px,2vw,24px);
+  background:#0a2214;
+}
+.card-title{font-size:clamp(9px,1vw,13px);font-weight:700;color:#00ff41;letter-spacing:2px;margin-bottom:10px;text-transform:uppercase;}
+.card-body{font-size:clamp(9px,0.95vw,13px);color:#1e5c2e;line-height:1.7;}
+
+.agent-row{display:flex;flex-direction:column;gap:clamp(6px,1vh,10px);width:100%;}
+.agent-box{display:flex;align-items:center;gap:clamp(12px,1.5vw,20px);border:1px solid #1e5c2e;border-radius:6px;padding:clamp(10px,1.5vh,14px) clamp(14px,2vw,20px);background:#0a2214;}
+.agent-circle{width:clamp(28px,3vw,38px);height:clamp(28px,3vw,38px);border-radius:50%;background:#0d2e18;border:1px solid #1e5c2e;display:flex;align-items:center;justify-content:center;font-size:clamp(10px,1vw,13px);font-weight:700;color:#00ff41;flex-shrink:0;}
+.agent-name{font-size:clamp(10px,1.1vw,14px);font-weight:700;color:#00ff41;letter-spacing:1px;}
+.agent-desc{font-size:clamp(9px,0.9vw,12px);color:#1e5c2e;margin-top:3px;line-height:1.5;}
+
+.lens-row{display:flex;gap:clamp(10px,1.5vw,18px);width:100%;margin-top:clamp(8px,1.5vh,16px);}
+.lens-box{flex:1;border-radius:6px;padding:clamp(14px,2vh,22px) clamp(14px,2vw,20px);text-align:center;}
+.lens-box.l1{border:1px solid rgba(0,255,65,0.35);background:rgba(0,255,65,0.04);}
+.lens-box.l2{border:1px solid rgba(255,221,68,0.35);background:rgba(255,221,68,0.04);}
+.lens-box.l3{border:1px solid rgba(255,102,68,0.35);background:rgba(255,102,68,0.04);}
+.lens-num{font-size:clamp(8px,0.8vw,10px);letter-spacing:3px;margin-bottom:8px;}
+.l1 .lens-num{color:#1e5c2e;} .l2 .lens-num{color:#886620;} .l3 .lens-num{color:#883322;}
+.lens-name{font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:1px;margin-bottom:8px;}
+.l1 .lens-name{color:#00ff41;} .l2 .lens-name{color:#ffdd44;} .l3 .lens-name{color:#ff6644;}
+.lens-desc{font-size:clamp(9px,0.9vw,12px);line-height:1.6;}
+.l1 .lens-desc{color:#1e5c2e;} .l2 .lens-desc{color:#886620;} .l3 .lens-desc{color:#883322;}
+
+.gr-row{display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px);width:100%;}
+.gr-box{display:flex;align-items:flex-start;gap:clamp(10px,1.5vw,16px);border:1px solid rgba(255,102,68,0.2);border-radius:6px;padding:clamp(10px,1.5vh,16px) clamp(14px,2vw,20px);background:rgba(255,102,68,0.03);}
+.gr-num{font-size:clamp(14px,1.5vw,20px);font-weight:700;color:#ff6644;flex-shrink:0;width:22px;line-height:1;}
+.gr-title{font-size:clamp(10px,1.1vw,14px);font-weight:700;color:#ff8866;letter-spacing:0.5px;}
+.gr-desc{font-size:clamp(9px,0.9vw,12px);color:rgba(255,102,68,0.5);margin-top:4px;line-height:1.6;}
+
+.stack-pills{display:flex;gap:clamp(8px,1vw,14px);flex-wrap:wrap;justify-content:center;margin-bottom:clamp(16px,2.5vh,28px);}
+.pill{border:1px solid #1e5c2e;border-radius:20px;padding:clamp(5px,0.8vh,8px) clamp(14px,1.8vw,22px);font-size:clamp(9px,1vw,13px);color:#00ff41;letter-spacing:1px;white-space:nowrap;}
+
+.flow-row{display:flex;align-items:center;width:100%;margin-top:clamp(10px,2vh,20px);}
+.flow-box{flex:1;border:1px solid #1e5c2e;border-radius:6px;padding:clamp(10px,1.5vh,16px) clamp(8px,1vw,12px);text-align:center;background:#0a2214;}
+.flow-name{font-size:clamp(10px,1.1vw,14px);font-weight:700;color:#00ff41;letter-spacing:1px;}
+.flow-sub{font-size:clamp(8px,0.9vw,11px);color:#1e5c2e;margin-top:4px;}
+.flow-arr{font-size:clamp(14px,1.5vw,20px);color:#0d2e18;padding:0 clamp(4px,0.5vw,8px);flex-shrink:0;}
+
+
+.demo-row{display:flex;gap:clamp(12px,2vw,24px);width:100%;margin-top:clamp(8px,1.5vh,16px);}
+.demo-card{flex:1;border-radius:6px;padding:clamp(16px,2.5vh,28px) clamp(16px,2.5vw,28px);background:#0a2214;}
+.demo-card.a{border:1px solid rgba(0,255,65,0.4);}
+.demo-card.b{border:1px solid rgba(255,221,68,0.4);}
+.demo-title{font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:1px;margin-bottom:clamp(10px,1.5vh,16px);}
+.demo-card.a .demo-title{color:#00ff41;} .demo-card.b .demo-title{color:#ffdd44;}
+.demo-body{font-size:clamp(10px,1vw,13px);color:#1e5c2e;line-height:1.9;}
+
+.hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);font-size:11px;color:#0d2e18;letter-spacing:2px;pointer-events:none;transition:opacity 1s;}
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="controls">
+    <div class="ctrl-left">
+      <span class="ctrl-title">Rehnumai</span>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="ctrl-right">
+      <span class="counter" id="counter">01 / 10</span>
+      <button class="btn" onclick="prev()">← Prev</button>
+      <button class="btn" onclick="next()">Next →</button>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <!-- S1: Title -->
+    <div class="slide active" id="s1">
+      <div class="slide-inner">
+        <div class="s-num">01 / 10</div>
+        <div class="s-title">Rehnumai</div>
+        <div class="s-sub" style="margin-bottom:20px;">Adaptive Curriculum Engine</div>
+        <div class="divider"></div>
+        <div class="s-body">AI Mustaqbil 2.0 &nbsp;·&nbsp; Theme 2 — Education & Skill Development &nbsp;·&nbsp; Hard Tier</div>
+      </div>
+    </div>
+
+    <!-- S2: Problem -->
+    <div class="slide" id="s2">
+      <div class="slide-inner">
+        <div class="s-tag">Problem</div>
+        <div class="s-num">02 / 10</div>
+        <div class="s-h2">Every student learns differently.<br/>Most tools don't.</div>
+        <div class="card-row">
+          <div class="card"><div class="card-title">Same content</div><div class="card-body">Regardless of whether the learner is 9 or 19, a beginner or advanced.</div></div>
+          <div class="card"><div class="card-title">Same language</div><div class="card-body">No adaptation to age, vocabulary level, or prior knowledge.</div></div>
+          <div class="card"><div class="card-title">No feedback loop</div><div class="card-body">If a student struggles, nothing changes. If they excel, nothing changes.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3: Solution -->
+    <div class="slide" id="s3">
+      <div class="slide-inner">
+        <div class="s-tag">Solution</div>
+        <div class="s-num">03 / 10</div>
+        <div class="s-h2">Rehnumai adapts to every learner</div>
+        <div class="s-body" style="margin-bottom:clamp(12px,2vh,20px);">A multi-agent pipeline that diagnoses, plans, teaches, and continuously adjusts — for Maths, Science, and Geopolitics.</div>
+        <div class="card-row">
+          <div class="card" style="text-align:center;"><div class="card-title" style="font-size:clamp(13px,1.6vw,20px);letter-spacing:1px;">Age-aware</div><div class="card-body">Different vocabulary for a 9-year-old vs a 19-year-old</div></div>
+          <div class="card" style="text-align:center;"><div class="card-title" style="font-size:clamp(13px,1.6vw,20px);letter-spacing:1px;">Level-adaptive</div><div class="card-body">Promotes or demotes difficulty based on performance</div></div>
+          <div class="card" style="text-align:center;"><div class="card-title" style="font-size:clamp(13px,1.6vw,20px);letter-spacing:1px;">Lens-rotating</div><div class="card-body">Every topic taught through 3 pedagogical perspectives</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4: Why multi-agent -->
+    <div class="slide" id="s4">
+      <div class="slide-inner">
+        <div class="s-tag">Architecture</div>
+        <div class="s-num">04 / 10</div>
+        <div class="s-h2">Why multi-agent?</div>
+        <div class="s-body" style="margin-bottom:clamp(12px,2vh,20px);">A single LLM call can't simultaneously assess, plan, teach, and track progress without confusing its own role. Each agent has one job.</div>
+        <div class="flow-row">
+          <div class="flow-box"><div class="flow-name">Assessment</div><div class="flow-sub">Diagnose level</div></div>
+          <div class="flow-arr">→</div>
+          <div class="flow-box"><div class="flow-name">Curriculum</div><div class="flow-sub">Build plan</div></div>
+          <div class="flow-arr">→</div>
+          <div class="flow-box"><div class="flow-name">Teaching</div><div class="flow-sub">Deliver lesson</div></div>
+          <div class="flow-arr">→</div>
+          <div class="flow-box"><div class="flow-name">Progress</div><div class="flow-sub">Score & route</div></div>
+        </div>
+        <div class="s-body" style="margin-top:clamp(10px,1.5vh,18px);font-size:clamp(9px,0.9vw,12px);opacity:0.6;">The progress agent can loop back to the curriculum agent if level changes — stateful conditional routing via LangGraph.</div>
+      </div>
+    </div>
+
+    <!-- S5: Four agents -->
+    <div class="slide" id="s5">
+      <div class="slide-inner">
+        <div class="s-tag">Agents</div>
+        <div class="s-num">05 / 10</div>
+        <div class="s-h2">The four agents</div>
+        <div class="agent-row">
+          <div class="agent-box"><div class="agent-circle">01</div><div><div class="agent-name">Assessment agent</div><div class="agent-desc">5 diagnostic questions · scores answers · sets beginner / intermediate / advanced · detects age group</div></div></div>
+          <div class="agent-box"><div class="agent-circle">02</div><div><div class="agent-name">Curriculum agent</div><div class="agent-desc">Selects 3 topics from subject bank · sequences pedagogically · assigns lens rotation</div></div></div>
+          <div class="agent-box"><div class="agent-circle">03</div><div><div class="agent-name">Teaching agent</div><div class="agent-desc">Generates lesson through active lens · adapts vocabulary to age and level · poses check question</div></div></div>
+          <div class="agent-box"><div class="agent-circle">04</div><div><div class="agent-name">Progress agent</div><div class="agent-desc">Scores answer · detects level change · writes next_step to state · LangGraph routes accordingly</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6: Lens rotation -->
+    <div class="slide" id="s6">
+      <div class="slide-inner">
+        <div class="s-tag">Innovation</div>
+        <div class="s-num">06 / 10</div>
+        <div class="s-h2">The lens rotation mechanic</div>
+        <div class="s-body" style="margin-bottom:clamp(10px,1.5vh,18px);">Every topic is taught through three distinct pedagogical lenses. Same content — different relationship with the material.</div>
+        <div class="lens-row">
+          <div class="lens-box l1"><div class="lens-num">LENS 01</div><div class="lens-name">Neutral & Factual</div><div class="lens-desc">Who, what, when, where. Foundations. No opinion.</div></div>
+          <div class="lens-box l2"><div class="lens-num">LENS 02</div><div class="lens-name">Critical Thinking</div><div class="lens-desc">Why? What are the different perspectives? What's missing?</div></div>
+          <div class="lens-box l3"><div class="lens-num">LENS 03</div><div class="lens-name">Humanitarian</div><div class="lens-desc">Human impact. Why does this matter to real people?</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7: Guardrails -->
+    <div class="slide" id="s7">
+      <div class="slide-inner">
+        <div class="s-tag">Responsible AI</div>
+        <div class="s-num">07 / 10</div>
+        <div class="s-h2">Three active guardrails</div>
+        <div class="gr-row">
+          <div class="gr-box"><div class="gr-num">①</div><div><div class="gr-title">Age-based content filter</div><div class="gr-desc">Full LLM review for children under 14. Graphic or inappropriate content detected and rewritten. Lighter pass for teens. No filtering for adults.</div></div></div>
+          <div class="gr-box"><div class="gr-num">②</div><div><div class="gr-title">Political neutrality checker</div><div class="gr-desc">Every geopolitics lesson audited before delivery. Loaded terms reframed as attributed perspectives. Flags logged to server console in real time.</div></div></div>
+          <div class="gr-box"><div class="gr-num">③</div><div><div class="gr-title">Answer safety monitor</div><div class="gr-desc">Every learner answer scanned before processing. Distress signals and hate speech intercepted. Welfare message shown instead of normal feedback.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8: Tech stack -->
+    <div class="slide" id="s8">
+      <div class="slide-inner">
+        <div class="s-tag">Tech Stack</div>
+        <div class="s-num">08 / 10</div>
+        <div class="s-h2">Built with</div>
+        <div class="stack-pills">
+          <div class="pill">Python</div>
+          <div class="pill">LangGraph</div>
+          <div class="pill">Groq API</div>
+          <div class="pill">Llama 3.3 70B</div>
+          <div class="pill">Flask</div>
+          <div class="pill">HTML / CSS / JS</div>
+        </div>
+        <div class="card-row">
+          <div class="card"><div class="card-title">LangGraph</div><div class="card-body">Handles stateful graph routing. The adaptation loop requires conditional re-routing that a while loop cannot do.</div></div>
+          <div class="card"><div class="card-title">Groq API</div><div class="card-body">Free tier. Fast inference. Each agent makes its own focused API call with a dedicated system prompt.</div></div>
+          <div class="card"><div class="card-title">No framework UI</div><div class="card-body">Vanilla HTML. Runs in any browser. Zero build step. Demo never breaks on a missing npm package.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9: Architecture diagram -->
+    <div class="slide" id="s9">
+      <div class="s-tag" style="position:absolute;top:clamp(10px,2vh,20px);left:clamp(12px,2vw,28px);font-size:clamp(8px,0.8vw,10px);color:#1e5c2e;letter-spacing:3px;border:1px solid #0d2e18;padding:3px 10px;text-transform:uppercase;z-index:2;">Architecture</div>
+      <div class="s-num" style="position:absolute;top:clamp(10px,2vh,20px);right:clamp(12px,2vw,28px);font-size:clamp(9px,0.8vw,11px);color:#0d2e18;letter-spacing:3px;z-index:2;">09 / 10</div>
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:40px 20px 20px;">
+        <svg width="100%" viewBox="0 0 1100 730" xmlns="http://www.w3.org/2000/svg" style="max-height:100%;">
+          <defs>
+            <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#00ff41" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+            <marker id="arr-gray2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#3a8a4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+          </defs>
+          <rect width="1100" height="730" fill="#071a0e"/>
+          <text x="550" y="38" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="20" font-weight="700" fill="#00ff41" letter-spacing="4">REHNUMAI — AGENT ARCHITECTURE</text>
+          <text x="550" y="58" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="12" fill="#3a8a4a" letter-spacing="2">Adaptive Curriculum Engine · AI Mustaqbil 2.0</text>
+          <!-- LEARNER -->
+          <rect x="420" y="76" width="260" height="48" rx="8" fill="#0d2e18" stroke="#00ff41" stroke-width="1.5"/>
+          <text x="550" y="95" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="14" font-weight="700" fill="#00ff41" letter-spacing="2">LEARNER</text>
+          <text x="550" y="114" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">Name · Age · Subject · Answers</text>
+          <line x1="550" y1="124" x2="550" y2="150" stroke="#00ff41" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <!-- ASSESSMENT -->
+          <rect x="360" y="150" width="380" height="66" rx="8" fill="#1a4a28" stroke="#00ff41" stroke-width="2"/>
+          <text x="550" y="172" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="15" font-weight="700" fill="#00ff41" letter-spacing="2">ASSESSMENT AGENT</text>
+          <text x="550" y="191" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#7fcf90" letter-spacing="1">5 diagnostic questions via Groq API</text>
+          <text x="550" y="208" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">Outputs: level + age_group → shared state</text>
+          <line x1="550" y1="216" x2="550" y2="244" stroke="#00ff41" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <!-- CURRICULUM -->
+          <rect x="360" y="244" width="380" height="66" rx="8" fill="#1a4a28" stroke="#00ff41" stroke-width="2"/>
+          <text x="550" y="266" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="15" font-weight="700" fill="#00ff41" letter-spacing="2">CURRICULUM AGENT</text>
+          <text x="550" y="285" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#7fcf90" letter-spacing="1">Selects 3 topics · sequences plan</text>
+          <text x="550" y="302" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">Assigns lens rotation: Factual → Critical → Humanitarian</text>
+          <line x1="550" y1="310" x2="550" y2="338" stroke="#00ff41" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <!-- TEACHING -->
+          <rect x="360" y="338" width="380" height="66" rx="8" fill="#1a4a28" stroke="#00ff41" stroke-width="2"/>
+          <text x="550" y="360" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="15" font-weight="700" fill="#00ff41" letter-spacing="2">TEACHING AGENT</text>
+          <text x="550" y="379" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#7fcf90" letter-spacing="1">Generates lesson through active lens via Groq API</text>
+          <text x="550" y="396" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">Adapts vocabulary to age_group + level</text>
+          <line x1="550" y1="404" x2="550" y2="432" stroke="#00ff41" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="562" y="422" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a">learner answers</text>
+          <!-- PROGRESS -->
+          <rect x="360" y="432" width="380" height="66" rx="8" fill="#1a4a28" stroke="#00ff41" stroke-width="2"/>
+          <text x="550" y="454" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="15" font-weight="700" fill="#00ff41" letter-spacing="2">PROGRESS AGENT</text>
+          <text x="550" y="473" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#7fcf90" letter-spacing="1">Scores answer · detects level change · routes next step</text>
+          <text x="550" y="490" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">Writes next_step to state → LangGraph routes</text>
+          <!-- Adapt loop left -->
+          <path d="M360 465 L230 465 L230 277 L360 277" fill="none" stroke="#ffdd44" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arr2)"/>
+          <text x="162" y="358" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#ffdd44" letter-spacing="1">ADAPT</text>
+          <text x="162" y="373" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="10" fill="#ffdd44" opacity="0.7">level changed</text>
+          <!-- Next topic right -->
+          <path d="M740 465 L860 465 L860 371 L740 371" fill="none" stroke="#3a8a4a" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arr-gray2)"/>
+          <text x="916" y="420" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">NEXT</text>
+          <text x="916" y="435" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a" opacity="0.7">topic continues</text>
+          <!-- END -->
+          <line x1="550" y1="498" x2="550" y2="546" stroke="#3a8a4a" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-gray2)"/>
+          <rect x="466" y="546" width="168" height="36" rx="6" fill="#0d2e18" stroke="#3a8a4a" stroke-width="1"/>
+          <text x="550" y="568" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="13" fill="#3a8a4a" letter-spacing="2">END SESSION</text>
+          <!-- SHARED STATE -->
+          <rect x="40" y="150" width="244" height="230" rx="8" fill="#0a2214" stroke="#3a8a4a" stroke-width="1" stroke-dasharray="5 3"/>
+          <text x="162" y="172" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="12" font-weight="700" fill="#3a8a4a" letter-spacing="2">SHARED STATE</text>
+          <line x1="58" y1="180" x2="266" y2="180" stroke="#3a8a4a" stroke-width="0.5" opacity="0.4"/>
+          <text x="60" y="200" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› learner.name / age_group</text>
+          <text x="60" y="218" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› learner.level</text>
+          <text x="60" y="236" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› learner.current_lens</text>
+          <text x="60" y="254" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› study_plan[ ]</text>
+          <text x="60" y="272" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› current_lesson</text>
+          <text x="60" y="290" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› current_question</text>
+          <text x="60" y="308" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› next_step</text>
+          <text x="60" y="326" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">› score · questions_asked</text>
+          <line x1="284" y1="183" x2="360" y2="183" stroke="#3a8a4a" stroke-width="0.8" stroke-dasharray="3 2" opacity="0.5"/>
+          <line x1="284" y1="277" x2="360" y2="277" stroke="#3a8a4a" stroke-width="0.8" stroke-dasharray="3 2" opacity="0.5"/>
+          <line x1="284" y1="371" x2="360" y2="371" stroke="#3a8a4a" stroke-width="0.8" stroke-dasharray="3 2" opacity="0.5"/>
+          <line x1="284" y1="465" x2="360" y2="465" stroke="#3a8a4a" stroke-width="0.8" stroke-dasharray="3 2" opacity="0.5"/>
+          <!-- GUARDRAILS -->
+          <rect x="800" y="244" width="255" height="170" rx="8" fill="#0a2214" stroke="#ff6644" stroke-width="1" stroke-dasharray="5 3"/>
+          <text x="927" y="265" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="12" font-weight="700" fill="#ff6644" letter-spacing="2">GUARDRAILS</text>
+          <line x1="818" y1="273" x2="1037" y2="273" stroke="#ff6644" stroke-width="0.5" opacity="0.4"/>
+          <text x="820" y="292" font-family="'Pixelify Sans',monospace" font-size="11" fill="#ff6644">① Age content filter</text>
+          <text x="820" y="308" font-family="'Pixelify Sans',monospace" font-size="10" fill="#ff6644" opacity="0.6">  child / teen / adult</text>
+          <text x="820" y="326" font-family="'Pixelify Sans',monospace" font-size="11" fill="#ff6644">② Neutrality checker</text>
+          <text x="820" y="342" font-family="'Pixelify Sans',monospace" font-size="10" fill="#ff6644" opacity="0.6">  geopolitics only</text>
+          <text x="820" y="360" font-family="'Pixelify Sans',monospace" font-size="11" fill="#ff6644">③ Answer safety monitor</text>
+          <text x="820" y="376" font-family="'Pixelify Sans',monospace" font-size="10" fill="#ff6644" opacity="0.6">  distress + hate speech</text>
+          <text x="820" y="402" font-family="'Pixelify Sans',monospace" font-size="10" fill="#ff6644" opacity="0.4">  runs on every request</text>
+          <line x1="740" y1="348" x2="800" y2="336" stroke="#ff6644" stroke-width="1" stroke-dasharray="3 2" opacity="0.6"/>
+          <!-- TECH STACK -->
+          <rect x="800" y="432" width="255" height="100" rx="8" fill="#0a2214" stroke="#3a8a4a" stroke-width="1" stroke-dasharray="5 3"/>
+          <text x="927" y="453" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="12" font-weight="700" fill="#3a8a4a" letter-spacing="2">TECH STACK</text>
+          <line x1="818" y1="461" x2="1037" y2="461" stroke="#3a8a4a" stroke-width="0.5" opacity="0.4"/>
+          <text x="820" y="480" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">Python + LangGraph</text>
+          <text x="820" y="498" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">Groq API · Llama 3.3 70B</text>
+          <text x="820" y="516" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a">Flask · HTML / CSS / JS</text>
+          <!-- LENS ROTATION -->
+          <rect x="40" y="400" width="244" height="112" rx="8" fill="#0a2214" stroke="#3a8a4a" stroke-width="1" stroke-dasharray="5 3"/>
+          <text x="162" y="422" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="12" font-weight="700" fill="#3a8a4a" letter-spacing="2">LENS ROTATION</text>
+          <line x1="58" y1="430" x2="266" y2="430" stroke="#3a8a4a" stroke-width="0.5" opacity="0.4"/>
+          <text x="60" y="450" font-family="'Pixelify Sans',monospace" font-size="11" fill="#00ff41">LENS-01  Neutral &amp; Factual</text>
+          <text x="60" y="468" font-family="'Pixelify Sans',monospace" font-size="11" fill="#ffdd44">LENS-02  Critical Thinking</text>
+          <text x="60" y="486" font-family="'Pixelify Sans',monospace" font-size="11" fill="#ff6644">LENS-03  Humanitarian</text>
+          <text x="60" y="503" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a" opacity="0.7">Hardcoded rotation per topic</text>
+          <!-- Subjects bar -->
+          <rect x="360" y="606" width="380" height="30" rx="6" fill="#0a2214" stroke="#3a8a4a" stroke-width="1" opacity="0.9"/>
+          <text x="378" y="625" font-family="'Pixelify Sans',monospace" font-size="11" fill="#3a8a4a" letter-spacing="1">SUBJECTS:</text>
+          <text x="470" y="625" font-family="'Pixelify Sans',monospace" font-size="11" fill="#00ff41">MATHS</text>
+          <text x="564" y="625" font-family="'Pixelify Sans',monospace" font-size="11" fill="#00ff41">SCIENCE</text>
+          <text x="652" y="625" font-family="'Pixelify Sans',monospace" font-size="11" fill="#00ff41">GEOPOLITICS</text>
+          <!-- Diagram key -->
+          <rect x="800" y="550" width="255" height="100" rx="8" fill="#0a2214" stroke="#3a8a4a" stroke-width="1" stroke-dasharray="5 3"/>
+          <text x="927" y="570" text-anchor="middle" font-family="'Pixelify Sans',monospace" font-size="11" font-weight="700" fill="#3a8a4a" letter-spacing="2">DIAGRAM KEY</text>
+          <line x1="818" y1="578" x2="1037" y2="578" stroke="#3a8a4a" stroke-width="0.5" opacity="0.4"/>
+          <line x1="820" y1="595" x2="845" y2="595" stroke="#00ff41" stroke-width="1.5" marker-end="url(#arr2)"/>
+          <text x="852" y="599" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a">Pipeline flow</text>
+          <line x1="820" y1="612" x2="845" y2="612" stroke="#ffdd44" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr2)"/>
+          <text x="852" y="616" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a">Adaptation loop</text>
+          <line x1="820" y1="628" x2="845" y2="628" stroke="#3a8a4a" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-gray2)"/>
+          <text x="852" y="632" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a">Next topic</text>
+          <line x1="820" y1="642" x2="845" y2="642" stroke="#ff6644" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.8"/>
+          <text x="852" y="646" font-family="'Pixelify Sans',monospace" font-size="10" fill="#3a8a4a">Guardrail pipeline</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- S10: Demo -->
+    <div class="slide" id="s10">
+      <div class="slide-inner">
+        <div class="s-tag">Demo</div>
+        <div class="s-num">10 / 10</div>
+        <div class="s-h2">The demo — two learners, one system</div>
+        <div class="demo-row">
+          <div class="demo-card a">
+            <div class="demo-title">LEARNER A — AGE 9</div>
+            <div class="demo-body">Answers poorly → Beginner level<br/>Simple analogies throughout<br/>Age-filtered content applied<br/>Child-appropriate vocabulary</div>
+          </div>
+          <div class="demo-card b">
+            <div class="demo-title">LEARNER B — AGE 17</div>
+            <div class="demo-body">Answers correctly → Advanced level<br/>Analytical framing applied<br/>Technical vocabulary used<br/>Critical thinking lens activated</div>
+          </div>
+        </div>
+        <div class="divider" style="margin-top:clamp(16px,2.5vh,28px);"></div>
+        <div class="s-body" style="font-size:clamp(12px,1.3vw,17px);color:#00ff41;">Same agents. Same pipeline. Same guardrails. Visibly different experience.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="hint" id="hint">← → arrow keys to navigate</div>
+
+<script>
+let cur = 0;
+const total = 10;
+const dotsEl = document.getElementById('dots');
+const counterEl = document.getElementById('counter');
+const hint = document.getElementById('hint');
+
+for(let i = 0; i < total; i++){
+  const d = document.createElement('button');
+  d.className = 'dot' + (i===0?' active':'');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+
+function goTo(n){
+  document.getElementById('s'+(cur+1)).classList.remove('active');
+  dotsEl.children[cur].classList.remove('active');
+  cur = ((n % total) + total) % total;
+  document.getElementById('s'+(cur+1)).classList.add('active');
+  dotsEl.children[cur].classList.add('active');
+  counterEl.textContent = String(cur+1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+}
+function next(){ goTo(cur+1); }
+function prev(){ goTo(cur-1); }
+
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') next();
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') prev();
+});
+
+// Fade out hint after 4s
+setTimeout(()=>{ hint.style.opacity='0'; }, 4000);
+</script>
+</body>
+</html>
