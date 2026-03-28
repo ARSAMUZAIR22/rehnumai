@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Rehnumai</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  min-height:100vh;
+  background-color:#071a0e;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23071a0e'/%3E%3Crect width='1' height='1' x='0' y='0' fill='%23082010' opacity='0.6'/%3E%3Crect width='1' height='1' x='2' y='2' fill='%23061508' opacity='0.5'/%3E%3C/svg%3E");
+  font-family:'Pixelify Sans',monospace;
+  color:#00ff41;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── Back arrow ── */
+.back-btn{
+  position:fixed;top:28px;left:32px;
+  font-size:22px;color:#00ff41;
+  cursor:pointer;z-index:100;
+  background:none;border:none;
+  display:none;
+}
+.back-btn:hover{opacity:0.7;}
+
+/* ── Screens ── */
+.screen{
+  display:none;
+  min-height:100vh;
+  width:100%;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:60px 40px;
+}
+.screen.active{display:flex;}
+
+/* ── Splash ── */
+#screen-splash .logo{
+  font-size:clamp(48px,8vw,80px);
+  font-weight:700;
+  color:#00ff41;
+  letter-spacing:4px;
+  animation:pulse 3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.75}}
+
+/* ── Input screens (name, age) ── */
+.input-screen-inner{
+  display:flex;flex-direction:column;
+  align-items:center;gap:24px;
+  width:100%;max-width:420px;
+}
+.question-label{
+  font-size:clamp(18px,3vw,26px);
+  font-weight:600;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  text-align:center;
+}
+.flat-input{
+  width:100%;
+  background:transparent;
+  border:none;
+  border-bottom:2px solid #00ff41;
+  color:#00ff41;
+  font-family:'Pixelify Sans',monospace;
+  font-size:18px;
+  padding:8px 4px;
+  outline:none;
+  caret-color:#00ff41;
+  text-align:center;
+  letter-spacing:2px;
+}
+.flat-input::placeholder{color:rgba(0,255,65,0.3);font-size:15px;}
+
+/* ── Subject buttons ── */
+.subject-row{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+.subject-btn{
+  background:transparent;
+  border:2px solid #00ff41;
+  color:#00ff41;
+  font-family:'Pixelify Sans',monospace;
+  font-size:16px;
+  letter-spacing:3px;
+  padding:14px 32px;
+  cursor:pointer;
+  text-transform:uppercase;
+  transition:all 0.15s;
+  min-width:160px;
+}
+.subject-btn:hover,.subject-btn.active{
+  background:#00ff41;
+  color:#071a0e;
+}
+
+/* ── Page title (top center) ── */
+.page-title{
+  position:fixed;top:24px;left:50%;
+  transform:translateX(-50%);
+  font-size:20px;font-weight:600;
+  letter-spacing:4px;
+  color:#00ff41;
+  z-index:100;
+  text-transform:uppercase;
+}
+
+/* ── Diagnostic ── */
+.diag-header{text-align:center;margin-bottom:48px;}
+.diag-title{font-size:28px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
+.diag-sub{font-size:16px;opacity:0.6;letter-spacing:2px;margin-top:6px;}
+.diag-inner{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.diag-q{font-size:clamp(18px,3vw,24px);font-weight:600;letter-spacing:2px;text-transform:uppercase;text-align:center;}
+.submit-btn{
+  width:100%;
+  background:#00ff41;
+  border:2px solid #00ff41;
+  color:#071a0e;
+  font-family:'Pixelify Sans',monospace;
+  font-size:16px;
+  font-weight:600;
+  letter-spacing:3px;
+  padding:12px;
+  cursor:pointer;
+  text-transform:uppercase;
+  transition:all 0.15s;
+}
+.submit-btn:hover{background:transparent;color:#00ff41;}
+
+/* ── Assessment result ── */
+.result-screen{width:100%;max-width:900px;padding-top:80px;}
+.qa-row{border-top:1px solid rgba(0,255,65,0.25);padding:14px 0;}
+.qa-label{font-size:13px;letter-spacing:2px;opacity:0.5;margin-bottom:6px;}
+.qa-q{font-size:17px;font-weight:500;margin-bottom:4px;}
+.qa-q::before{content:"› ";opacity:0.8;}
+.qa-a{font-size:17px;}
+.qa-a::before{content:"› ";}
+.qa-a.good{color:#00ff41;}
+.qa-a.mid{color:#ffdd44;}
+.qa-a.bad{color:#ff4444;}
+.result-footer{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-top:24px;
+  border-top:1px solid rgba(0,255,65,0.25);
+  padding-top:20px;
+}
+.result-badges{display:flex;gap:12px;}
+.badge{
+  background:rgba(0,255,65,0.15);
+  border:1px solid rgba(0,255,65,0.4);
+  padding:8px 20px;
+  font-size:16px;font-weight:600;
+  letter-spacing:2px;
+}
+.action-btn{
+  background:transparent;
+  border:2px solid #00ff41;
+  color:#00ff41;
+  font-family:'Pixelify Sans',monospace;
+  font-size:15px;font-weight:600;
+  letter-spacing:3px;padding:12px 24px;
+  cursor:pointer;text-transform:uppercase;
+  transition:all 0.15s;
+  display:flex;align-items:center;gap:8px;
+}
+.action-btn:hover{background:#00ff41;color:#071a0e;}
+
+/* ── Study plan ── */
+.plan-screen{width:100%;max-width:900px;padding-top:80px;}
+.plan-title{
+  font-size:28px;font-weight:700;
+  letter-spacing:4px;text-transform:uppercase;
+  text-align:center;margin-bottom:36px;
+}
+.plan-outer{
+  background:#1e5c2e;
+  border-radius:24px;
+  padding:24px;
+  display:flex;flex-direction:column;gap:16px;
+}
+.plan-item{
+  background:#3a8a4a;
+  border-radius:16px;
+  padding:20px 24px;
+  display:flex;align-items:center;gap:20px;
+  cursor:pointer;
+  transition:background 0.15s;
+}
+.plan-item:hover{background:#4a9a5a;}
+.plan-num{
+  width:44px;height:44px;
+  border-radius:50%;
+  background:rgba(0,0,0,0.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;
+  color:#fff;flex-shrink:0;
+  letter-spacing:1px;
+}
+.plan-info{flex:1;}
+.plan-topic{font-size:20px;font-weight:600;color:#fff;margin-bottom:6px;}
+.plan-tags{display:flex;gap:8px;}
+.plan-tag{
+  background:rgba(0,0,0,0.2);
+  border-radius:6px;
+  padding:3px 10px;
+  font-size:12px;letter-spacing:2px;
+  color:rgba(255,255,255,0.8);
+}
+.plan-footer{display:flex;justify-content:center;margin-top:24px;}
+
+/* ── Lesson ── */
+.lesson-meta{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:0;
+  padding:0 4px;
+  padding-top:70px;
+}
+.lesson-meta-left{font-size:14px;letter-spacing:3px;opacity:0.6;text-transform:uppercase;}
+.lesson-meta-right{display:flex;gap:24px;align-items:flex-end;}
+.meta-stat{text-align:right;}
+.meta-val{font-size:28px;font-weight:700;line-height:1;}
+.meta-lbl{font-size:11px;letter-spacing:3px;opacity:0.5;margin-top:2px;text-transform:uppercase;}
+.progress-bar-wrap{width:100%;height:8px;display:flex;gap:0;margin-bottom:0;}
+.progress-seg{flex:1;height:8px;background:rgba(0,255,65,0.2);transition:background 0.4s;}
+.progress-seg.done{background:#00ff41;}
+.progress-seg.active{background:#39ff80;}
+.lesson-card{
+  width:100%;
+  background:#3a8a4a;
+  border-radius:0 0 16px 16px;
+  padding:40px 60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:24px;
+  min-height:400px;
+  justify-content:center;
+}
+.lesson-topic-title{
+  font-size:clamp(22px,4vw,36px);
+  font-weight:700;color:#fff;
+  text-align:center;
+  line-height:1.3;
+  margin-bottom:8px;
+}
+.lesson-body{
+  font-size:clamp(15px,2vw,18px);
+  color:#fff;
+  text-align:center;
+  line-height:1.8;
+  max-width:780px;
+  opacity:0.92;
+}
+.lesson-answer-input{
+  width:100%;max-width:500px;
+  background:transparent;
+  border:none;border-bottom:2px solid rgba(255,255,255,0.5);
+  color:#fff;
+  font-family:'Pixelify Sans',monospace;
+  font-size:17px;
+  padding:8px 4px;outline:none;
+  caret-color:#fff;text-align:center;
+  letter-spacing:1px;
+}
+.lesson-answer-input::placeholder{color:rgba(255,255,255,0.35);font-size:14px;}
+.lesson-feedback{
+  font-size:16px;font-weight:600;
+  letter-spacing:2px;text-align:center;
+  text-transform:uppercase;
+}
+.lesson-feedback.good{color:#00ff41;}
+.lesson-feedback.bad{color:#ff6644;}
+.lesson-feedback.mid{color:#ffdd44;}
+.next-btn{
+  background:transparent;
+  border:2px solid rgba(255,255,255,0.6);
+  color:#fff;
+  font-family:'Pixelify Sans',monospace;
+  font-size:14px;font-weight:600;
+  letter-spacing:3px;padding:10px 24px;
+  cursor:pointer;text-transform:uppercase;
+  transition:all 0.15s;
+  display:flex;align-items:center;gap:8px;
+}
+.next-btn:hover{background:rgba(255,255,255,0.15);}
+
+/* ── End screen ── */
+.end-card{
+  background:#1e5c2e;
+  border-radius:20px;
+  padding:48px 56px;
+  text-align:center;
+  max-width:600px;
+  width:100%;
+}
+.end-title{font-size:32px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:32px;}
+.end-stats{display:flex;gap:24px;justify-content:center;margin-bottom:36px;flex-wrap:wrap;}
+.end-stat{
+  background:rgba(0,255,65,0.1);
+  border:1px solid rgba(0,255,65,0.3);
+  border-radius:12px;
+  padding:16px 28px;
+  text-align:center;
+}
+.end-stat-val{font-size:32px;font-weight:700;color:#00ff41;}
+.end-stat-lbl{font-size:12px;letter-spacing:2px;opacity:0.5;margin-top:4px;text-transform:uppercase;}
+
+/* ── Loading overlay ── */
+#loading{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(7,26,14,0.85);
+  z-index:999;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+}
+#loading.show{display:flex;}
+.loading-dot{
+  display:flex;gap:8px;
+}
+.loading-dot span{
+  width:10px;height:10px;
+  border-radius:50%;background:#00ff41;
+  animation:dotbounce 1.2s ease-in-out infinite;
+}
+.loading-dot span:nth-child(2){animation-delay:0.2s;}
+.loading-dot span:nth-child(3){animation-delay:0.4s;}
+@keyframes dotbounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+.loading-text{font-size:14px;letter-spacing:3px;opacity:0.6;text-transform:uppercase;}
+.guardrail-notice{
+  width:100%;max-width:760px;
+  background:rgba(255,102,68,0.08);
+  border:1px solid rgba(255,102,68,0.4);
+  border-radius:8px;
+  padding:10px 18px;
+  font-size:13px;letter-spacing:1px;
+  color:#ff9977;
+  margin-top:12px;
+  display:none;
+}
+.guardrail-notice.show{display:block;}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-dot"><span></span><span></span><span></span></div>
+  <div class="loading-text" id="loading-text">Loading...</div>
+</div>
+
+<button class="back-btn" id="back-btn">←</button>
+
+<!-- SPLASH -->
+<div class="screen active" id="screen-splash">
+  <div class="logo">Rehnumai</div>
+</div>
+
+<!-- NAME -->
+<div class="screen" id="screen-name">
+  <div class="input-screen-inner">
+    <div class="question-label">What is your name?</div>
+    <input class="flat-input" id="inp-name" placeholder="type your name" autocomplete="off" spellcheck="false"/>
+  </div>
+</div>
+
+<!-- AGE -->
+<div class="screen" id="screen-age">
+  <div class="input-screen-inner">
+    <div class="question-label">What is your age?</div>
+    <input class="flat-input" id="inp-age" placeholder="type your age" type="number" min="8" max="25" autocomplete="off"/>
+  </div>
+</div>
+
+<!-- SUBJECT -->
+<div class="screen" id="screen-subject">
+  <div class="input-screen-inner" style="max-width:700px;">
+    <div class="question-label">What do you want to study?</div>
+    <div class="subject-row">
+      <button class="subject-btn" onclick="pickSubject('maths')">Maths</button>
+      <button class="subject-btn" onclick="pickSubject('science')">Science</button>
+      <button class="subject-btn" onclick="pickSubject('geopolitics')">Geopolitics</button>
+    </div>
+  </div>
+</div>
+
+<!-- DIAGNOSTIC -->
+<div class="screen" id="screen-diag">
+  <div class="page-title" id="diag-page-title">Quick Diagnostic</div>
+  <div class="diag-header">
+    <div class="diag-sub" id="diag-counter">Question 1/5</div>
+  </div>
+  <div class="diag-inner">
+    <div class="diag-q" id="diag-q"></div>
+    <input class="flat-input" id="inp-diag" placeholder="type your answer" autocomplete="off" spellcheck="false" style="max-width:420px;"/>
+    <button class="submit-btn" onclick="submitDiag()">Submit</button>
+  </div>
+</div>
+
+<!-- ASSESSMENT RESULT -->
+<div class="screen" id="screen-result">
+  <div class="page-title">Assessment Result</div>
+  <div class="result-screen">
+    <div id="result-qa-list"></div>
+    <div class="result-footer">
+      <div class="result-badges">
+        <div class="badge" id="result-score-badge">Score: 0/10</div>
+        <div class="badge" id="result-level-badge">Beginner</div>
+      </div>
+      <button class="action-btn" onclick="goToPlan()">Build My Study Plan ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDY PLAN -->
+<div class="screen" id="screen-plan">
+  <div class="plan-screen">
+    <div class="plan-title">Your Study Plan</div>
+    <div class="plan-outer" id="plan-list"></div>
+    <div class="plan-footer">
+      <button class="action-btn" onclick="startLesson()">Start Lesson 01 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- LESSON -->
+<div class="screen" id="screen-lesson" style="padding:0;justify-content:flex-start;">
+  <div class="page-title" id="lesson-page-title">Lesson 01</div>
+  <div style="width:100%;max-width:1100px;margin:0 auto;padding:0 32px;">
+    <div class="lesson-meta">
+      <div class="lesson-meta-left" id="lesson-topic-label">Topic 1/3</div>
+      <div class="lesson-meta-right">
+        <div class="meta-stat"><div class="meta-val" id="meta-score">00</div><div class="meta-lbl">Score</div></div>
+        <div class="meta-stat"><div class="meta-val" id="meta-level">BEG</div><div class="meta-lbl">Level</div></div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap" id="lesson-progress-bar"></div>
+    <div class="lesson-card" id="lesson-card">
+      <div class="lesson-topic-title" id="lesson-title"></div>
+      <div class="lesson-body" id="lesson-body"></div>
+      <button class="next-btn" id="lesson-next-btn" onclick="lessonNext()">Next ▶</button>
+    </div>
+  </div>
+  <div class="guardrail-notice" id="guardrail-notice">⚠ Content reviewed for age-appropriateness and political neutrality before delivery.</div>
+</div>
+
+<!-- END -->
+<div class="screen" id="screen-end">
+  <div class="end-card">
+    <div class="end-title">Session Complete</div>
+    <div class="end-stats">
+      <div class="end-stat"><div class="end-stat-val" id="end-score">0</div><div class="end-stat-lbl">Score</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="end-level">BEG</div><div class="end-stat-lbl">Level</div></div>
+      <div class="end-stat"><div class="end-stat-val" id="end-topics">3</div><div class="end-stat-lbl">Topics</div></div>
+    </div>
+    <button class="action-btn" style="margin:0 auto;" onclick="restartApp()">Play Again ▶</button>
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:5000";
+
+const TOPICS = {
+  maths:{
+    beginner:    ["Addition & subtraction — building number sense","Introduction to fractions","Basic geometry — shapes and angles"],
+    intermediate:["Algebra fundamentals — variables and equations","Ratio and proportion","Statistics basics — mean, median, mode"],
+    advanced:    ["Quadratic equations — solving and graphing","Trigonometry — sine, cosine, applications","Probability theory — outcomes and distributions"],
+  },
+  science:{
+    beginner:    ["The scientific method — how scientists ask questions","Cells — the building blocks of life","Forces and motion — pushes and pulls"],
+    intermediate:["Photosynthesis and respiration","The periodic table — elements and structure","Electricity and circuits"],
+    advanced:    ["Genetics and DNA — inheritance and mutation","Chemical reactions — rates and equilibrium","Waves and quantum mechanics"],
+  },
+  geopolitics:{
+    beginner:    ["What is a war and why do countries fight?","The Russia-Ukraine War — what happened and why","The conflict in Gaza — a simple overview"],
+    intermediate:["The Russia-Ukraine War — causes, NATO, and global impact","The Israel-Gaza conflict — history and current situation","The Iran-Israel-US triangle — proxy wars and regional power"],
+    advanced:    ["Geopolitics of Russia-Ukraine — energy, alliances, sovereignty","The Israel-Palestine conflict — international law and humanitarian crisis","The Iran-Israel escalation — nuclear diplomacy and US involvement"],
+  },
+};
+const LENSES = ["factual","critical_thinking","humanitarian"];
+const LENS_LABELS = {factual:"Factual",critical_thinking:"Critical",humanitarian:"Humanitarian"};
+
+let S = freshState();
+function freshState(){
+  return {
+    name:"",age:15,subject:"",level:"beginner",ageGroup:"teen",
+    quizQs:[],quizAs:[],quizIdx:0,
+    plan:[],lensAssign:{},topicIdx:0,lensIdx:0,
+    currentTopic:"",currentLens:"",
+    lesson:"",lessonParas:[],lessonParaIdx:0,
+    question:"",score:0,qAsked:0,
+    conRight:0,conWrong:0,
+    lessonPhase:"content", // content | question | answer | feedback
+  };
+}
+
+// ── Screen routing ────────────────────────────────────────
+const screens = ["splash","name","age","subject","diag","result","plan","lesson","end"];
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("screen-"+id).classList.add("active");
+  const backBtn = document.getElementById("back-btn");
+  backBtn.style.display = id==="splash" ? "none" : "block";
+}
+
+function showLoading(text="Thinking..."){
+  document.getElementById("loading-text").textContent = text;
+  document.getElementById("loading").classList.add("show");
+}
+function hideLoading(){ document.getElementById("loading").classList.remove("show"); }
+
+async function api(endpoint, body){
+  try {
+    const r = await fetch(API+endpoint,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    if(!r.ok) throw new Error("Server error "+r.status);
+    return r.json();
+  } catch(e) {
+    hideLoading();
+    showError("Cannot reach Rehnumai server. Make sure server.py is running on port 5000.");
+    throw e;
+  }
+}
+
+function showError(msg){
+  let el = document.getElementById("error-banner");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "error-banner";
+    el.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a0a08;border:1px solid #ff4444;color:#ff6644;font-family:'Pixelify Sans',monospace;font-size:13px;letter-spacing:1px;padding:12px 24px;border-radius:8px;z-index:9999;max-width:600px;text-align:center;";
+    document.body.appendChild(el);
+  }
+  el.textContent = "⚠ "+msg;
+  el.style.display = "block";
+  setTimeout(()=>{ el.style.display="none"; }, 6000);
+}
+
+// ── Back button ───────────────────────────────────────────
+const screenOrder = ["splash","name","age","subject","diag","result","plan","lesson","end"];
+let currentScreen = "splash";
+function goBack(){
+  const idx = screenOrder.indexOf(currentScreen);
+  if(idx > 0){ const prev = screenOrder[idx-1]; currentScreen=prev; show(prev); }
+}
+document.getElementById("back-btn").onclick = goBack;
+
+function nav(id){ currentScreen=id; show(id); }
+
+// ── Splash ────────────────────────────────────────────────
+setTimeout(()=>{ nav("name"); focusInput("inp-name"); }, 1800);
+
+function focusInput(id){ setTimeout(()=>{ const el=document.getElementById(id); if(el) el.focus(); },100); }
+
+// ── Name ─────────────────────────────────────────────────
+document.getElementById("inp-name").addEventListener("keydown",e=>{ if(e.key==="Enter") submitName(); });
+function submitName(){
+  const v = document.getElementById("inp-name").value.trim();
+  if(!v) return;
+  S.name = v;
+  nav("age"); focusInput("inp-age");
+}
+
+// ── Age ───────────────────────────────────────────────────
+document.getElementById("inp-age").addEventListener("keydown",e=>{ if(e.key==="Enter") submitAge(); });
+function submitAge(){
+  const v = parseInt(document.getElementById("inp-age").value);
+  if(isNaN(v)||v<8||v>25) return;
+  S.age = v;
+  S.ageGroup = v<14?"child":v<18?"teen":"adult";
+  nav("subject");
+}
+
+// ── Subject ───────────────────────────────────────────────
+async function pickSubject(s){
+  S.subject = s;
+  showLoading("Generating questions...");
+  try {
+    const data = await api("/quiz",{subject:s,age:S.age,age_group:S.ageGroup});
+    S.quizQs = data.questions;
+  } catch(e){
+    S.quizQs = [
+      `What do you already know about ${s}?`,
+      `Can you name one example from ${s}?`,
+      `What topic in ${s} do you find hardest?`,
+      `What have you studied in ${s} recently?`,
+      `What excites you about ${s}?`
+    ];
+  }
+  S.quizAs = []; S.quizIdx = 0;
+  hideLoading();
+  renderDiagQ();
+  nav("diag");
+  focusInput("inp-diag");
+}
+
+// ── Diagnostic ────────────────────────────────────────────
+document.getElementById("inp-diag").addEventListener("keydown",e=>{ if(e.key==="Enter") submitDiag(); });
+function renderDiagQ(){
+  const idx = S.quizIdx;
+  document.getElementById("diag-counter").textContent = `Question ${idx+1}/5`;
+  document.getElementById("diag-q").textContent = S.quizQs[idx] || "";
+  document.getElementById("inp-diag").value = "";
+  focusInput("inp-diag");
+}
+async function submitDiag(){
+  const v = document.getElementById("inp-diag").value.trim() || "(no answer)";
+  S.quizAs.push(v);
+  S.quizIdx++;
+  if(S.quizIdx < S.quizQs.length){
+    renderDiagQ(); return;
+  }
+  // All 5 done — score them
+  showLoading("Evaluating answers...");
+  const pairs = S.quizQs.map((q,i)=>`Q${i+1}: ${q}\nA${i+1}: ${S.quizAs[i]}`).join("\n");
+  try {
+    const data = await api("/score_quiz",{subject:S.subject,age_group:S.ageGroup,qa_pairs:pairs});
+    S.level = data.level || "beginner";
+    S.quizScores = data.scores || [];
+    renderResult(data.total||0, data.level||"beginner", data.scores||[]);
+  } catch(e){
+    S.level = "beginner";
+    S.quizScores = [];
+    renderResult(0,"beginner",[]);
+  }
+  hideLoading();
+  nav("result");
+}
+
+// ── Assessment result ─────────────────────────────────────
+function renderResult(total, level, scores){
+  const list = document.getElementById("result-qa-list");
+  list.innerHTML = "";
+  S.quizQs.forEach((q,i)=>{
+    const ans = S.quizAs[i] || "(no answer)";
+    // Use per-answer score from API if available, else fallback to length heuristic
+    let cls = "bad";
+    if(scores && scores.length > i){
+      const sc = scores[i];
+      cls = sc >= 2 ? "good" : sc === 1 ? "mid" : "bad";
+    } else {
+      cls = ans.length > 5 && ans !== "(no answer)" ? "good" : "bad";
+    }
+    const row = document.createElement("div");
+    row.className = "qa-row";
+    row.innerHTML = `
+      <div class="qa-label">Question ${i+1} / 5</div>
+      <div class="qa-q">${q}</div>
+      <div class="qa-a ${cls}">${ans}</div>`;
+    list.appendChild(row);
+  });
+  document.getElementById("result-score-badge").textContent = `Score: ${total}/10`;
+  document.getElementById("result-level-badge").textContent = level.charAt(0).toUpperCase()+level.slice(1);
+}
+
+// ── Study plan ────────────────────────────────────────────
+function goToPlan(){
+  const bank = TOPICS[S.subject][S.level] || TOPICS.maths.beginner;
+  S.plan = [...bank];
+  S.lensAssign = {};
+  S.plan.forEach((t,i)=>S.lensAssign[t]=LENSES[i%3]);
+  S.topicIdx=0; S.lensIdx=0;
+  S.currentTopic=S.plan[0];
+  S.currentLens=S.lensAssign[S.plan[0]];
+  renderPlan();
+  nav("plan");
+}
+function renderPlan(){
+  const list = document.getElementById("plan-list");
+  list.innerHTML = "";
+  S.plan.forEach((topic,i)=>{
+    const lens = S.lensAssign[topic];
+    const item = document.createElement("div");
+    item.className = "plan-item";
+    item.innerHTML = `
+      <div class="plan-num">0${i+1}</div>
+      <div class="plan-info">
+        <div class="plan-topic">${topic}</div>
+        <div class="plan-tags">
+          <span class="plan-tag">LENS-0${i+1}</span>
+          <span class="plan-tag">${LENS_LABELS[lens]}</span>
+        </div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+// ── Lesson ────────────────────────────────────────────────
+async function startLesson(){ await loadLesson(); }
+
+async function loadLesson(){
+  const topic = S.plan[S.topicIdx];
+  const lens  = S.lensAssign[topic] || LENSES[S.lensIdx];
+  S.currentTopic = topic;
+  S.currentLens  = lens;
+  S.lessonPhase  = "content";
+
+  // Update meta
+  document.getElementById("lesson-page-title").textContent = `Lesson 0${S.topicIdx+1}`;
+  document.getElementById("lesson-topic-label").textContent = `Topic ${S.topicIdx+1}/${S.plan.length}`;
+  document.getElementById("meta-score").textContent = String(S.score).padStart(2,"0");
+  document.getElementById("meta-level").textContent = S.level.slice(0,3).toUpperCase();
+
+  // Progress bar
+  const bar = document.getElementById("lesson-progress-bar");
+  bar.innerHTML = "";
+  S.plan.forEach((_,i)=>{
+    const seg = document.createElement("div");
+    seg.className = "progress-seg" + (i<S.topicIdx?" done":i===S.topicIdx?" active":"");
+    bar.appendChild(seg);
+  });
+
+  document.getElementById("lesson-title").textContent = topic;
+  document.getElementById("lesson-body").textContent = "";
+  document.getElementById("lesson-next-btn").textContent = "Next ▶";
+  document.getElementById("lesson-next-btn").onclick = lessonNext;
+
+  nav("lesson");
+  showLoading("Generating lesson...");
+
+  try {
+    const data = await api("/lesson",{
+      name:S.name,age:S.age,age_group:S.ageGroup,
+      level:S.level,subject:S.subject,topic,lens
+    });
+    S.lesson   = data.lesson;
+    S.question = data.question;
+    // Split lesson into paragraphs
+    S.lessonParas = (data.lesson||"").split(/\n\n+/).filter(p=>p.trim()).map(p=>p.trim());
+    if(S.lessonParas.length===0) S.lessonParas=[data.lesson];
+    S.lessonParaIdx = 0;
+  } catch(e){
+    S.lessonParas = [`Here's what you need to know about ${topic}.`];
+    S.question = `What is the most important thing you learned about ${topic}?`;
+    S.lessonParaIdx = 0;
+  }
+
+  hideLoading();
+  // Show guardrail notice
+  const gn = document.getElementById("guardrail-notice");
+  if(gn) gn.classList.add("show");
+  // Show first paragraph
+  document.getElementById("lesson-body").textContent = S.lessonParas[0];
+  document.getElementById("lesson-next-btn").style.display = "flex";
+}
+
+function lessonNext(){
+  if(S.lessonPhase === "content"){
+    S.lessonParaIdx++;
+    if(S.lessonParaIdx < S.lessonParas.length){
+      // More paragraphs
+      document.getElementById("lesson-body").textContent = S.lessonParas[S.lessonParaIdx];
+    } else {
+      // Move to question phase
+      S.lessonPhase = "question";
+      document.getElementById("lesson-body").textContent = S.question;
+      document.getElementById("lesson-next-btn").style.display = "none";
+      // Add answer input
+      const card = document.getElementById("lesson-card");
+      let ainp = document.getElementById("lesson-ans-inp");
+      if(!ainp){
+        ainp = document.createElement("input");
+        ainp.id = "lesson-ans-inp";
+        ainp.className = "lesson-answer-input";
+        ainp.placeholder = "type your answer";
+        ainp.autocomplete = "off";
+        ainp.spellcheck = false;
+        ainp.addEventListener("keydown",e=>{ if(e.key==="Enter") submitLessonAnswer(); });
+        card.appendChild(ainp);
+      } else {
+        ainp.value = "";
+        ainp.style.display = "block";
+      }
+      const subBtn = document.getElementById("lesson-sub-btn");
+      if(!subBtn){
+        const b = document.createElement("button");
+        b.id = "lesson-sub-btn";
+        b.className = "submit-btn";
+        b.style.maxWidth = "300px";
+        b.textContent = "Submit";
+        b.onclick = submitLessonAnswer;
+        card.appendChild(b);
+      } else { b.style.display="block"; }
+      setTimeout(()=>{ document.getElementById("lesson-ans-inp").focus(); },100);
+    }
+    return;
+  }
+}
+
+async function submitLessonAnswer(){
+  const ans = (document.getElementById("lesson-ans-inp")?.value||"").trim() || "(no answer)";
+  S.lessonPhase = "feedback";
+
+  // Hide input and sub btn
+  const ainp = document.getElementById("lesson-ans-inp");
+  const subBtn = document.getElementById("lesson-sub-btn");
+  if(ainp) ainp.style.display="none";
+  if(subBtn) subBtn.style.display="none";
+
+  showLoading("Evaluating...");
+  let score=0, feedbackTxt="Keep going.";
+  try {
+    const data = await api("/feedback",{
+      level:S.level,age_group:S.ageGroup,subject:S.subject,
+      topic:S.currentTopic,question:S.question,answer:ans
+    });
+    score       = data.score||0;
+    feedbackTxt = data.feedback||"Keep going.";
+  } catch(e){ score=0; feedbackTxt="Not quite — keep going."; }
+  hideLoading();
+
+  S.score += score;
+  S.qAsked++;
+  if(score===2){ S.conRight++; S.conWrong=0; }
+  else if(score===0){ S.conWrong++; S.conRight=0; }
+  else { S.conRight=0; S.conWrong=0; }
+
+  // Level change
+  let levelChanged=false, newLevel=S.level;
+  if(S.conRight>=2&&S.level==="beginner"){ newLevel="intermediate"; levelChanged=true; }
+  else if(S.conRight>=2&&S.level==="intermediate"){ newLevel="advanced"; levelChanged=true; }
+  else if(S.conWrong>=2&&S.level==="advanced"){ newLevel="intermediate"; levelChanged=true; }
+  else if(S.conWrong>=2&&S.level==="intermediate"){ newLevel="beginner"; levelChanged=true; }
+  if(levelChanged){ S.level=newLevel; S.conRight=0; S.conWrong=0; }
+
+  // Show feedback in card
+  document.getElementById("lesson-body").textContent = S.question;
+  const cls = score===2?"good":score===1?"mid":"bad";
+  const ansEl = document.getElementById("lesson-ans-inp");
+  if(ansEl){ ansEl.value=ans; ansEl.style.display="block"; ansEl.disabled=true; }
+  // Remove old feedback label if exists
+  document.getElementById("lesson-fb-label")?.remove();
+  const fb = document.createElement("div");
+  fb.id = "lesson-fb-label";
+  fb.className = `lesson-feedback ${cls}`;
+  fb.textContent = feedbackTxt.toUpperCase();
+  document.getElementById("lesson-card").appendChild(fb);
+
+  // Show next button
+  const nextBtn = document.getElementById("lesson-next-btn");
+  nextBtn.style.display = "flex";
+
+  // Update meta
+  document.getElementById("meta-score").textContent = String(S.score).padStart(2,"0");
+  document.getElementById("meta-level").textContent = S.level.slice(0,3).toUpperCase();
+
+  const nextIdx = S.topicIdx+1;
+  if(levelChanged){
+    nextBtn.textContent = "Rebuild Plan ▶";
+    nextBtn.onclick = ()=>{ goToPlan(); };
+  } else if(nextIdx >= S.plan.length){
+    nextBtn.textContent = "Finish ▶";
+    nextBtn.onclick = showEnd;
+  } else {
+    nextBtn.textContent = "Next Topic ▶";
+    nextBtn.onclick = ()=>{
+      S.topicIdx++;
+      S.lensIdx=(S.lensIdx+1)%3;
+      // Clean up
+      document.getElementById("lesson-ans-inp")?.remove();
+      document.getElementById("lesson-sub-btn")?.remove();
+      document.getElementById("lesson-fb-label")?.remove();
+      if(document.getElementById("lesson-ans-inp")) document.getElementById("lesson-ans-inp").disabled=false;
+      loadLesson();
+    };
+  }
+}
+
+function showEnd(){
+  document.getElementById("end-score").textContent = S.score;
+  document.getElementById("end-level").textContent = S.level.slice(0,3).toUpperCase();
+  document.getElementById("end-topics").textContent = S.plan.length;
+  nav("end");
+}
+
+function restartApp(){
+  S = freshState();
+  document.getElementById("inp-name").value="";
+  document.getElementById("inp-age").value="";
+  nav("name"); focusInput("inp-name");
+}
+</script>
+</body>
+</html>
