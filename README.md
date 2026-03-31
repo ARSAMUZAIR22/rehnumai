@@ -169,20 +169,3 @@ open index.html        # Mac
 
 ---
 
-## Demo
-
-> Link to demo video: [add before submission]
-
-The demo runs two learners back to back to prove genuine adaptation:
-
-**Learner A — age 9, answers diagnostic questions poorly**
-Gets simple language, relatable analogies, age-filtered content, beginner-level topics.
-
-**Learner B — age 17, answers diagnostic questions correctly**
-Gets analytical framing, technical vocabulary, advanced-level topics.
-
-Same agents. Same pipeline. Same guardrails. Visibly different output.
-
----
-
-*Rehnumai — Where agents become teachers, and every learner gets a personalised path.*
